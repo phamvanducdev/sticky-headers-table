@@ -23,6 +23,9 @@ class StickyHeadersTable extends StatefulWidget {
     /// Title for Top Left cell (always visible)
     this.legendCell = const Text(''),
 
+    /// Title for Top Right cell
+    this.actionCell,
+
     /// Builder for column titles. Takes index of content column as parameter
     /// and returns String for column title
     required this.columnsTitleBuilder,
@@ -30,6 +33,10 @@ class StickyHeadersTable extends StatefulWidget {
     /// Builder for row titles. Takes index of content row as parameter
     /// and returns String for row title
     required this.rowsTitleBuilder,
+
+    /// Builder for row titles2. Takes index of content row as parameter
+    /// and returns String for row title2
+    this.rowsTitle2Builder,
 
     /// Builder for content cell. Takes index for content column first,
     /// index for content row second and returns String for cell
@@ -85,8 +92,10 @@ class StickyHeadersTable extends StatefulWidget {
   final int rowsLength;
   final int columnsLength;
   final Widget legendCell;
+  final Widget? actionCell;
   final Widget Function(int columnIndex) columnsTitleBuilder;
   final Widget Function(int rowIndex) rowsTitleBuilder;
+  final Widget? Function(int rowIndex)? rowsTitle2Builder;
   final Widget Function(int columnIndex, int rowIndex) contentCellBuilder;
   final CellDimensions cellDimensions;
   final CellAlignments cellAlignments;
@@ -114,6 +123,7 @@ class StickyHeadersTable extends StatefulWidget {
 class _StickyHeadersTableState extends State<StickyHeadersTable> {
   final globalRowTitleKeys = <int, GlobalKey>{};
   final globalColumnTitleKeys = <int, GlobalKey>{};
+  final globalColumnTitle2Keys = <int, GlobalKey>{};
 
   late _SyncScrollController _horizontalSyncController;
   late _SyncScrollController _verticalSyncController;
@@ -176,6 +186,7 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
     if (scrollOffsetY != null) {
       // Try to use natural offset first
       widget.scrollControllers.verticalTitleController.jumpTo(scrollOffsetY);
+      widget.scrollControllers.verticalTitle2Controller.jumpTo(scrollOffsetY);
     } else {
       // Try to use index offset second
       final scrollOffsetIndexY = widget.scrollOffsetIndexY;
@@ -203,10 +214,12 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
   Widget build(BuildContext context) {
     _verticalSyncController = _SyncScrollController(
       widget.scrollControllers.verticalTitleController,
+      widget.scrollControllers.verticalTitle2Controller,
       widget.scrollControllers.verticalBodyController,
     );
     _horizontalSyncController = _SyncScrollController(
       widget.scrollControllers.horizontalTitleController,
+      null,
       widget.scrollControllers.horizontalBodyController,
     );
     SchedulerBinding.instance.addPostFrameCallback((_) => _shiftUsingOffsets());
@@ -234,8 +247,7 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                   // Key is required to avoid 'The Scrollbar's ScrollController has no ScrollPosition attached.
                   key: Key('Row ${widget.showVerticalScrollbar}'),
                   thumbVisibility: widget.showVerticalScrollbar ?? false,
-                  controller:
-                      widget.scrollControllers.horizontalTitleController,
+                  controller: widget.scrollControllers.horizontalTitleController,
                   child: SingleChildScrollView(
                     reverse: widget.tableDirection == TextDirection.rtl,
                     physics: widget.scrollPhysics.stickyRow,
@@ -258,18 +270,29 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                         ),
                       ),
                     ),
-                    controller:
-                        widget.scrollControllers.horizontalTitleController,
+                    controller: widget.scrollControllers.horizontalTitleController,
                   ),
                 ),
-                onNotification: (notification) =>
-                    _onHorizontalScrollingNotification(
+                onNotification: (notification) => _onHorizontalScrollingNotification(
                   notification: notification,
-                  controller:
-                      widget.scrollControllers.horizontalTitleController,
+                  controller: widget.scrollControllers.horizontalTitleController,
                 ),
               ),
-            )
+            ),
+
+            /// STICKY LEGEND2
+            widget.actionCell != null
+                ? GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.onStickyLegendPressed,
+                    child: Container(
+                      width: widget.cellDimensions.stickyLegendWidth,
+                      height: widget.cellDimensions.stickyLegendHeight,
+                      alignment: widget.cellAlignments.stickyLegendAlignment,
+                      child: widget.actionCell,
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
         Expanded(
@@ -302,16 +325,15 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                         ),
                       ),
                     ),
-                    controller:
-                        widget.scrollControllers.verticalTitleController,
+                    controller: widget.scrollControllers.verticalTitleController,
                   ),
                 ),
-                onNotification: (notification) =>
-                    _onVerticalScrollingNotification(
+                onNotification: (notification) => _onVerticalScrollingNotification(
                   notification: notification,
                   controller: widget.scrollControllers.verticalTitleController,
                 ),
               ),
+
               // CONTENT
               Expanded(
                 child: NotificationListener<ScrollNotification>(
@@ -319,13 +341,11 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                     reverse: widget.tableDirection == TextDirection.rtl,
                     physics: widget.scrollPhysics.contentHorizontal,
                     scrollDirection: Axis.horizontal,
-                    controller:
-                        widget.scrollControllers.horizontalBodyController,
+                    controller: widget.scrollControllers.horizontalBodyController,
                     child: NotificationListener<ScrollNotification>(
                       child: SingleChildScrollView(
                         physics: widget.scrollPhysics.contentVertical,
-                        controller:
-                            widget.scrollControllers.verticalBodyController,
+                        controller: widget.scrollControllers.verticalBodyController,
                         child: Column(
                           children: List.generate(
                             widget.rowsLength,
@@ -335,19 +355,12 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                                 widget.columnsLength,
                                 (int columnIdx) => GestureDetector(
                                   behavior: HitTestBehavior.opaque,
-                                  onTap: () => widget.onContentCellPressed(
-                                      columnIdx, rowIdx),
+                                  onTap: () => widget.onContentCellPressed(columnIdx, rowIdx),
                                   child: Container(
-                                    width: widget.cellDimensions
-                                        .contentSize(rowIdx, columnIdx)
-                                        .width,
-                                    height: widget.cellDimensions
-                                        .contentSize(rowIdx, columnIdx)
-                                        .height,
-                                    alignment: widget.cellAlignments
-                                        .contentAlignment(rowIdx, columnIdx),
-                                    child: widget.contentCellBuilder(
-                                        columnIdx, rowIdx),
+                                    width: widget.cellDimensions.contentSize(rowIdx, columnIdx).width,
+                                    height: widget.cellDimensions.contentSize(rowIdx, columnIdx).height,
+                                    alignment: widget.cellAlignments.contentAlignment(rowIdx, columnIdx),
+                                    child: widget.contentCellBuilder(columnIdx, rowIdx),
                                   ),
                                 ),
                               ),
@@ -355,22 +368,54 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                           ),
                         ),
                       ),
-                      onNotification: (notification) =>
-                          _onVerticalScrollingNotification(
+                      onNotification: (notification) => _onVerticalScrollingNotification(
                         notification: notification,
-                        controller:
-                            widget.scrollControllers.verticalBodyController,
+                        controller: widget.scrollControllers.verticalBodyController,
                       ),
                     ),
                   ),
-                  onNotification: (notification) =>
-                      _onHorizontalScrollingNotification(
+                  onNotification: (notification) => _onHorizontalScrollingNotification(
                     notification: notification,
-                    controller:
-                        widget.scrollControllers.horizontalBodyController,
+                    controller: widget.scrollControllers.horizontalBodyController,
                   ),
                 ),
               ),
+
+              /// STICKY COLUMN2
+              widget.actionCell != null && widget.rowsTitle2Builder != null
+                  ? NotificationListener<ScrollNotification>(
+                      child: Scrollbar(
+                        // Key is required to avoid 'The Scrollbar's ScrollController has no ScrollPosition attached.
+                        key: Key('Column ${widget.showHorizontalScrollbar}'),
+                        thumbVisibility: widget.showHorizontalScrollbar ?? false,
+                        controller: widget.scrollControllers.verticalBodyController,
+                        child: SingleChildScrollView(
+                          physics: widget.scrollPhysics.stickyColumn,
+                          child: Column(
+                            children: List.generate(
+                              widget.rowsLength,
+                              (i) => GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => widget.onRowTitlePressed(i),
+                                child: Container(
+                                  key: globalColumnTitle2Keys[i] ??= GlobalKey(),
+                                  width: widget.cellDimensions.stickyLegendWidth,
+                                  height: widget.cellDimensions.stickyHeight(i),
+                                  alignment: widget.cellAlignments.columnAlignment(i),
+                                  child: widget.rowsTitle2Builder!(i),
+                                ),
+                              ),
+                            ),
+                          ),
+                          controller: widget.scrollControllers.verticalTitle2Controller,
+                        ),
+                      ),
+                      onNotification: (notification) => _onVerticalScrollingNotification(
+                        notification: notification,
+                        controller: widget.scrollControllers.verticalTitle2Controller,
+                      ),
+                    )
+                  : SizedBox(),
             ],
           ),
         ),
@@ -383,10 +428,12 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
 class _SyncScrollController {
   _SyncScrollController(
     this._titleController,
+    this._title2Controller,
     this._bodyController,
   );
 
   final ScrollController _titleController;
+  final ScrollController? _title2Controller;
   final ScrollController _bodyController;
 
   ScrollController? _scrollingController;
@@ -412,9 +459,9 @@ class _SyncScrollController {
       }
 
       if (notification is ScrollUpdateNotification) {
-        for (final controller in [_titleController, _bodyController]) {
+        for (final controller in [_titleController, _title2Controller, _bodyController]) {
           if (identical(_scrollingController, controller)) continue;
-          if (controller.positions.isEmpty) continue;
+          if (controller == null || controller.positions.isEmpty) continue;
           final offset = _scrollingController?.offset;
           if (offset != null) {
             controller.jumpTo(offset);
