@@ -11,6 +11,7 @@ class CellAlignments {
           stickyColumnAlignment: alignment,
           stickyRowAlignment: alignment,
           stickyLegendAlignment: alignment,
+          stickyActionAlignment: alignment,
         );
 
   /// Same alignment for each content cell, but different alignment for the
@@ -27,6 +28,9 @@ class CellAlignments {
 
     /// Alignment for the sticky legend cell.
     required this.stickyLegendAlignment,
+
+    /// Alignment for the sticky action cell.
+    required this.stickyActionAlignment,
   })  : columnAlignments = null,
         rowAlignments = null,
         contentCellAlignments = null,
@@ -48,6 +52,9 @@ class CellAlignments {
 
     /// Alignment for the sticky legend cell.
     required this.stickyLegendAlignment,
+
+    /// Alignment for the sticky action cell.
+    required this.stickyActionAlignment,
   })  : contentCellAlignment = null,
         rowAlignments = null,
         contentCellAlignments = null,
@@ -69,6 +76,9 @@ class CellAlignments {
 
     /// Alignment for the sticky legend cell.
     required this.stickyLegendAlignment,
+
+    /// Alignment for the sticky action cell.
+    required this.stickyActionAlignment,
   })  : contentCellAlignment = null,
         columnAlignments = null,
         contentCellAlignments = null,
@@ -91,6 +101,9 @@ class CellAlignments {
 
     /// Alignment for the sticky legend cell.
     required this.stickyLegendAlignment,
+
+    /// Alignment for the sticky action cell.
+    required this.stickyActionAlignment,
   })  : contentCellAlignment = null,
         columnAlignments = null,
         rowAlignments = null,
@@ -106,6 +119,7 @@ class CellAlignments {
   final Alignment? stickyRowAlignment;
   final List<Alignment>? stickyRowAlignments;
   final Alignment stickyLegendAlignment;
+  final Alignment stickyActionAlignment;
 
   Alignment contentAlignment(int i, int j) {
     final _contentCellAlignment = contentCellAlignment;
@@ -124,22 +138,15 @@ class CellAlignments {
   }
 
   Alignment? rowAlignment(int i) {
-    return stickyRowAlignments != null
-        ? stickyRowAlignments![i]
-        : stickyRowAlignment;
+    return stickyRowAlignments != null ? stickyRowAlignments![i] : stickyRowAlignment;
   }
 
   Alignment? columnAlignment(int i) {
-    return stickyColumnAlignments != null
-        ? stickyColumnAlignments![i]
-        : stickyColumnAlignment;
+    return stickyColumnAlignments != null ? stickyColumnAlignments![i] : stickyColumnAlignment;
   }
 
   void runAssertions(int rowsLength, int columnsLength) {
-    assert(contentCellAlignment != null ||
-        columnAlignments != null ||
-        rowAlignments != null ||
-        contentCellAlignments != null);
+    assert(contentCellAlignment != null || columnAlignments != null || rowAlignments != null || contentCellAlignments != null);
     assert(stickyColumnAlignment != null || stickyColumnAlignments != null);
     assert(stickyRowAlignment != null || stickyRowAlignments != null);
     if (columnAlignments != null) {

@@ -280,15 +280,15 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
               ),
             ),
 
-            /// STICKY LEGEND2
+            /// STICKY ACTION
             widget.actionCell != null
                 ? GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: widget.onStickyLegendPressed,
                     child: Container(
-                      width: widget.cellDimensions.stickyLegendWidth,
-                      height: widget.cellDimensions.stickyLegendHeight,
-                      alignment: widget.cellAlignments.stickyLegendAlignment,
+                      width: widget.cellDimensions.stickyActionWidth,
+                      height: widget.cellDimensions.stickyActionHeight,
+                      alignment: widget.cellAlignments.stickyActionAlignment,
                       child: widget.actionCell,
                     ),
                   )
@@ -399,7 +399,7 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                                 onTap: () => widget.onRowTitlePressed(i),
                                 child: Container(
                                   key: globalColumnTitle2Keys[i] ??= GlobalKey(),
-                                  width: widget.cellDimensions.stickyLegendWidth,
+                                  width: widget.cellDimensions.stickyActionWidth,
                                   height: widget.cellDimensions.stickyHeight(i),
                                   alignment: widget.cellAlignments.columnAlignment(i),
                                   child: widget.rowsTitle2Builder!(i),

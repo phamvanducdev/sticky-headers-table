@@ -26,13 +26,11 @@ class _InfiniteScrollPageState extends State<InfiniteScrollPage> {
     fetchData();
 
     scrollController.addListener(() {
-      if (scrollController.offset >=
-          scrollController.position.maxScrollExtent) {
+      if (scrollController.offset >= scrollController.position.maxScrollExtent) {
         fetchData();
 
         if (hasMore == false) {
-          final snackBar =
-              const SnackBar(content: Text('No more data to load'));
+          final snackBar = const SnackBar(content: Text('No more data to load'));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       }
@@ -59,19 +57,16 @@ class _InfiniteScrollPageState extends State<InfiniteScrollPage> {
           RefreshIndicator(
             onRefresh: refreshData,
             child: StickyHeadersTable(
-              scrollControllers:
-                  ScrollControllers(verticalBodyController: scrollController),
+              scrollControllers: ScrollControllers(verticalBodyController: scrollController),
               columnsLength: titleColumn.length,
               rowsLength: titleRow.length,
               columnsTitleBuilder: (i) => Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(titleColumn[i],
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(titleColumn[i], style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               rowsTitleBuilder: (i) => Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(titleRow[i],
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(titleRow[i], style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               contentCellBuilder: (i, j) => Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -79,26 +74,26 @@ class _InfiniteScrollPageState extends State<InfiniteScrollPage> {
               ),
               legendCell: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(legendCell,
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(legendCell, style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               cellAlignments: CellAlignments.fixed(
                 contentCellAlignment: Alignment.topLeft,
                 stickyColumnAlignment: Alignment.topLeft,
                 stickyRowAlignment: Alignment.centerLeft,
                 stickyLegendAlignment: Alignment.centerLeft,
+                stickyActionAlignment: Alignment.centerRight,
               ),
               cellDimensions: CellDimensions.fixed(
                 contentCellWidth: screenWidth / 3.3,
                 contentCellHeight: 50,
                 stickyLegendWidth: screenWidth / 3.3,
                 stickyLegendHeight: 50,
+                stickyActionWidth: screenWidth / 3.3,
+                stickyActionHeight: 50,
               ),
             ),
           ),
-          isLoading
-              ? Center(child: const CircularProgressIndicator())
-              : SizedBox.shrink(),
+          isLoading ? Center(child: const CircularProgressIndicator()) : SizedBox.shrink(),
         ],
       ),
     );
@@ -122,8 +117,7 @@ class _InfiniteScrollPageState extends State<InfiniteScrollPage> {
 
       for (final e in newListBreeds) {
         titleRow.add(e.breed ?? '');
-        matrixBreeds.add(
-            [e.country ?? '', e.origin ?? '', e.coat ?? '', e.pattern ?? '']);
+        matrixBreeds.add([e.country ?? '', e.origin ?? '', e.coat ?? '', e.pattern ?? '']);
       }
 
       setState(() {
@@ -137,8 +131,7 @@ class _InfiniteScrollPageState extends State<InfiniteScrollPage> {
         matrixBreeds;
       });
     } catch (e) {
-      final snackBar = const SnackBar(
-          content: Text('Occur data loading error. Please try latter'));
+      final snackBar = const SnackBar(content: Text('Occur data loading error. Please try latter'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       print('Loading error: $e');
     }
@@ -190,16 +183,12 @@ class Breeds {
   factory Breeds.fromJson(Map<String, dynamic> json) {
     return Breeds(
       currentPage: json['current_page'],
-      data: json['data'] != null
-          ? json['data'].map<Breed>((json) => Breed.fromJson(json)).toList()
-          : null,
+      data: json['data'] != null ? json['data'].map<Breed>((json) => Breed.fromJson(json)).toList() : null,
       firstPageUrl: json['first_page_url'],
       from: json['from'],
       lastPage: json['last_page'],
       lastPageUrl: json['last_page_url'],
-      links: json['links'] != null
-          ? json['links'].map<Link>((json) => Link.fromJson(json)).toList()
-          : null,
+      links: json['links'] != null ? json['links'].map<Link>((json) => Link.fromJson(json)).toList() : null,
       nextPageUrl: json['next_page_url'],
       path: json['path'],
       perPage: json['per_page'],

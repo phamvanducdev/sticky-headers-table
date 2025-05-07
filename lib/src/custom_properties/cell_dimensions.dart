@@ -7,6 +7,8 @@ class CellDimensions {
     contentCellHeight: 50.0,
     stickyLegendWidth: 120.0,
     stickyLegendHeight: 50.0,
+    stickyActionWidth: 50.0,
+    stickyActionHeight: 50.0,
   );
 
   /// Same dimensions for each cell.
@@ -17,7 +19,9 @@ class CellDimensions {
           contentCellWidth: width,
           contentCellHeight: height,
           stickyLegendWidth: width,
+          stickyActionWidth: width,
           stickyLegendHeight: height,
+          stickyActionHeight: height,
         );
 
   /// Same dimensions for each content cell, but different dimensions for the
@@ -32,8 +36,14 @@ class CellDimensions {
     /// Sticky legend width. Also applied to sticky column width.
     required this.stickyLegendWidth,
 
+    /// Sticky action width. Also applied to sticky column width.
+    required this.stickyActionWidth,
+
     /// Sticky legend height. Also applied to sticky row height.
     required this.stickyLegendHeight,
+
+    /// Sticky action height. Also applied to sticky row height.
+    required this.stickyActionHeight,
   })  : this.columnWidths = null,
         this.rowHeights = null;
 
@@ -49,8 +59,14 @@ class CellDimensions {
     /// Sticky legend width. Also applied to sticky column width.
     required this.stickyLegendWidth,
 
+    /// Sticky action width. Also applied to sticky column width.
+    required this.stickyActionWidth,
+
     /// Sticky legend height. Also applied to sticky row height.
     required this.stickyLegendHeight,
+
+    /// Sticky action height. Also applied to sticky row height.
+    required this.stickyActionHeight,
   })  : this.contentCellWidth = null,
         this.rowHeights = null;
 
@@ -66,8 +82,14 @@ class CellDimensions {
     /// Sticky legend width. Also applied to sticky column width.
     required this.stickyLegendWidth,
 
+    /// Sticky action width. Also applied to sticky column width.
+    required this.stickyActionWidth,
+
     /// Sticky legend height. Also applied to sticky row height.
     required this.stickyLegendHeight,
+
+    /// Sticky action height. Also applied to sticky row height.
+    required this.stickyActionHeight,
   })  : this.columnWidths = null,
         this.contentCellHeight = null;
 
@@ -84,8 +106,14 @@ class CellDimensions {
     /// Sticky legend width. Also applied to sticky column width.
     required this.stickyLegendWidth,
 
+    /// Sticky action width. Also applied to sticky column width.
+    required this.stickyActionWidth,
+
     /// Sticky legend height. Also applied to sticky row height.
     required this.stickyLegendHeight,
+
+    /// Sticky action height. Also applied to sticky row height.
+    required this.stickyActionHeight,
   })  : this.contentCellWidth = null,
         this.contentCellHeight = null;
 
@@ -95,23 +123,18 @@ class CellDimensions {
   final List<double>? rowHeights;
   final double stickyLegendWidth;
   final double stickyLegendHeight;
+  final double stickyActionWidth;
+  final double stickyActionHeight;
 
   Size contentSize(int i, int j) {
-    final width =
-        (columnWidths != null ? columnWidths![j] : contentCellWidth) ??
-            base.contentCellWidth!;
-    final height = (rowHeights != null ? rowHeights![i] : contentCellHeight) ??
-        base.contentCellHeight!;
+    final width = (columnWidths != null ? columnWidths![j] : contentCellWidth) ?? base.contentCellWidth!;
+    final height = (rowHeights != null ? rowHeights![i] : contentCellHeight) ?? base.contentCellHeight!;
     return Size(width, height);
   }
 
-  double stickyWidth(int i) =>
-      (columnWidths != null ? columnWidths![i] : contentCellWidth) ??
-      base.contentCellWidth!;
+  double stickyWidth(int i) => (columnWidths != null ? columnWidths![i] : contentCellWidth) ?? base.contentCellWidth!;
 
-  double stickyHeight(int i) =>
-      (rowHeights != null ? rowHeights![i] : contentCellHeight) ??
-      base.contentCellHeight!;
+  double stickyHeight(int i) => (rowHeights != null ? rowHeights![i] : contentCellHeight) ?? base.contentCellHeight!;
 
   void runAssertions(int rowsLength, int columnsLength) {
     assert(contentCellWidth != null || columnWidths != null);
